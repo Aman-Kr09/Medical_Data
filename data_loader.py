@@ -26,7 +26,7 @@ def load_data(dataset_name, n_samples=300):
         
     X, y = make_classification(n_samples=n_samples, n_features=n_features, 
                                n_informative=n_features-1, n_redundant=0, 
-                               n_classes=2, random_state=42)
+                               n_classes=2, class_sep=3.0, random_state=42)
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
     

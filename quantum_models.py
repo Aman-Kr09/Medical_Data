@@ -72,7 +72,7 @@ def get_uu_qnn_circuit(centroid, x, m_qubits, params):
     qc.measure(range(m_qubits), range(m_qubits))
     return qc
 
-def run_circuit_prob_0(qc, simulator, noise_model=None, shots=1000):
+def run_circuit_prob_0(qc, simulator, noise_model=None, shots=100):
     tc = transpile(qc, simulator)
     if noise_model is not None:
         result = simulator.run(tc, shots=shots, noise_model=noise_model).result()

@@ -16,11 +16,11 @@ def evaluate_metrics(y_true, y_pred):
     }
 
 def evaluate_classical(X_train, y_train, X_test, y_test):
-    svm = SVC(kernel='linear') 
+    svm = SVC(kernel='rbf', C=1.0, gamma='scale', random_state=42) 
     svm.fit(X_train, y_train)
     y_pred_svm = svm.predict(X_test)
     
-    ann = MLPClassifier(hidden_layer_sizes=(10,), max_iter=1000, random_state=42)
+    ann = MLPClassifier(hidden_layer_sizes=(64, 32), max_iter=2000, random_state=42, learning_rate='adaptive')
     ann.fit(X_train, y_train)
     y_pred_ann = ann.predict(X_test)
     
@@ -47,14 +47,30 @@ def predict_uu_dag(X, centroids, m_qubits, simulator, noise_model=None, var=Fals
     return y_pred
 
 def train_uu_qnn(X_train, y_train, centroids, m_qubits, simulator):
-    init_params = np.ones(2 * m_qubits) * 0.1 
+    np.random.seed(42)
+    init_params = np.random.uniform(0, 2 * np.pi, 2 * m_qubits)
     
-    def qnn_loss(params):
-        y_pred = predict_uu_qnn(X_train, centroids, m_qubits, params, simulator, noise_model=None)
-        acc = accuracy_score(y_train, y_pred)
-        return (1.0 - acc) ** 2
+    # Convert y_train to list/array to avoid index errors
+    y_train_arr = np.array(y_train)
 
-    cobyla = COBYLA(maxiter=20)
+    def qnn_loss(params):
+        total_loss = 0.0
+        for i, x in enumerate(X_train):
+            qc0 = get_uu_qnn_circuit(centroids[0], x, m_qubits, params)
+            qc1 = get_uu_qnn_circuit(centroids[1], x, m_qubits, params)
+            p_c0 = run_circuit_prob_0(qc0, simulator)
+            p_c1 = run_circuit_prob_0(qc1, simulator)
+            
+            if p_c0 + p_c1 == 0:
+                prob1 = 0.5
+            else:
+                prob1 = p_c1 / (p_c0 + p_c1)
+                
+            loss = (prob1 - y_train_arr[i]) ** 2
+            total_loss += loss
+        return total_loss / len(X_train)
+
+    cobyla = COBYLA(maxiter=5)
     result = cobyla.minimize(fun=qnn_loss, x0=init_params)
     return result.x
 

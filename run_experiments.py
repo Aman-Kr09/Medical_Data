@@ -18,9 +18,8 @@ def run_experiments():
             print(f"Running experiments for {ds}...", flush=True)
             results[ds] = {'classical': {}, 'quantum_clean': {}, 'quantum_noisy': {}}
             
-            # Using a small batch of 30 samples (20 train, 10 test) for demonstration purposes.
-            # This keeps quantum simulation time feasible for local machines.
-            X_train, X_test, y_train, y_test, centroids, m_qubits = load_data(ds, n_samples=30)
+            # Increase data size for realistic evaluation (was artificially constrained to 30)
+            X_train, X_test, y_train, y_test, centroids, m_qubits = load_data(ds, n_samples=100)
             
             class_res = evaluate_classical(X_train, y_train, X_test, y_test)
             results[ds]['classical'] = class_res
