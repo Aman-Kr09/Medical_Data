@@ -1,0 +1,10 @@
+qiskit
+qiskit-aer
+qiskit-algorithms
+scikit-learn
+pandas
+numpy
+plotly
+streamlit
+dash
+matplotlib
