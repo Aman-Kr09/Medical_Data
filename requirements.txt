@@ -8,3 +8,4 @@ plotly
 streamlit
 dash
 matplotlib
+altair<5.0.0
